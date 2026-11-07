@@ -1,0 +1,25 @@
+name: Qualidade
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14.8"
+      - run: |
+          python -m pip install --only-binary=:all: -r requirements.lock
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m pip check
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m ruff check .
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m ruff format --check .
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m mypy src tests
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m pytest
