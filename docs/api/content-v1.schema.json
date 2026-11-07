@@ -1,0 +1,462 @@
+{
+  "$defs": {
+    "CodeBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "code",
+          "title": "Type",
+          "type": "string"
+        },
+        "language": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Language",
+          "type": "string"
+        },
+        "code": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "language",
+        "code"
+      ],
+      "title": "CodeBlock",
+      "type": "object"
+    },
+    "DiagramBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "diagram",
+          "title": "Type",
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Nodes",
+          "type": "array"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/Edge"
+          },
+          "maxItems": 12,
+          "title": "Edges",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "nodes",
+        "edges"
+      ],
+      "title": "DiagramBlock",
+      "type": "object"
+    },
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Source",
+          "type": "integer"
+        },
+        "target": {
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Target",
+          "type": "integer"
+        },
+        "label": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "label"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "ExerciseRef": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "quiz",
+            "exercise"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "exercise_id": {
+          "title": "Exercise Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "exercise_id"
+      ],
+      "title": "ExerciseRef",
+      "type": "object"
+    },
+    "FlashcardBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "flashcard",
+          "title": "Type",
+          "type": "string"
+        },
+        "front": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Front",
+          "type": "string"
+        },
+        "back": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Back",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "front",
+        "back"
+      ],
+      "title": "FlashcardBlock",
+      "type": "object"
+    },
+    "FormulaBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "formula",
+          "title": "Type",
+          "type": "string"
+        },
+        "latex": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Latex",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "latex"
+      ],
+      "title": "FormulaBlock",
+      "type": "object"
+    },
+    "SourceBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "source",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "const": "Conhecimento do modelo; nenhuma fonte externa foi consultada.",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "text"
+      ],
+      "title": "SourceBlock",
+      "type": "object"
+    },
+    "TableBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "table",
+            "comparison"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "columns": {
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Columns",
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "columns",
+        "rows"
+      ],
+      "title": "TableBlock",
+      "type": "object"
+    },
+    "TextBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "explanation",
+            "example",
+            "hint",
+            "summary",
+            "curiosity",
+            "check_question"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "text"
+      ],
+      "title": "TextBlock",
+      "type": "object"
+    },
+    "TimelineBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "timeline",
+          "title": "Type",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/TimelineItem"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "items"
+      ],
+      "title": "TimelineBlock",
+      "type": "object"
+    },
+    "TimelineItem": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "text"
+      ],
+      "title": "TimelineItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "study",
+        "memorize",
+        "learn",
+        "practice"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "title": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "blocks": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "check_question": "#/$defs/TextBlock",
+            "code": "#/$defs/CodeBlock",
+            "comparison": "#/$defs/TableBlock",
+            "curiosity": "#/$defs/TextBlock",
+            "diagram": "#/$defs/DiagramBlock",
+            "example": "#/$defs/TextBlock",
+            "exercise": "#/$defs/ExerciseRef",
+            "explanation": "#/$defs/TextBlock",
+            "flashcard": "#/$defs/FlashcardBlock",
+            "formula": "#/$defs/FormulaBlock",
+            "hint": "#/$defs/TextBlock",
+            "quiz": "#/$defs/ExerciseRef",
+            "source": "#/$defs/SourceBlock",
+            "summary": "#/$defs/TextBlock",
+            "table": "#/$defs/TableBlock",
+            "text": "#/$defs/TextBlock",
+            "timeline": "#/$defs/TimelineBlock"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/TextBlock"
+          },
+          {
+            "$ref": "#/$defs/CodeBlock"
+          },
+          {
+            "$ref": "#/$defs/FormulaBlock"
+          },
+          {
+            "$ref": "#/$defs/TableBlock"
+          },
+          {
+            "$ref": "#/$defs/FlashcardBlock"
+          },
+          {
+            "$ref": "#/$defs/TimelineBlock"
+          },
+          {
+            "$ref": "#/$defs/DiagramBlock"
+          },
+          {
+            "$ref": "#/$defs/SourceBlock"
+          },
+          {
+            "$ref": "#/$defs/ExerciseRef"
+          }
+        ]
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Blocks",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mode",
+    "title",
+    "blocks"
+  ],
+  "title": "PublicDocument",
+  "type": "object"
+}

@@ -86,7 +86,10 @@ class OllamaProvider:
             )
 
     async def chat(
-        self, model: str, messages: list[dict[str, str]]
+        self,
+        model: str,
+        messages: list[dict[str, str]],
+        response_schema: dict[str, object] | None = None,
     ) -> AsyncIterator[str]:
         try:
             async with self.client.stream(
@@ -97,7 +100,15 @@ class OllamaProvider:
                     "messages": messages,
                     "stream": True,
                     "think": False,
-                    "options": {"num_ctx": 4096, "num_predict": 1024},
+                    **(
+                        {"format": response_schema}
+                        if response_schema is not None
+                        else {}
+                    ),
+                    "options": {
+                        "num_ctx": 4096,
+                        "num_predict": 2048 if response_schema else 1024,
+                    },
                 },
             ) as response:
                 response.raise_for_status()

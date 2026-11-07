@@ -2,7 +2,7 @@
 
 > **Fonte de requisitos:** `PLANEJAMENTO_PLATAFORMA_ESTUDOS_IA.md`  
 > **Regras para agentes:** `AGENTS.md`  
-> **Estado atual:** Marcos 0 e 1 verificados localmente no Windows; Marco 2 não iniciado.  
+> **Estado atual:** Marcos 0, 1 e 2 verificados localmente no Windows; Marco 3 não iniciado.
 > **Estratégia:** concluir uma fase por vez, sem antecipar funcionalidades não aprovadas.
 
 > Referência principal do progresso integrado: TASKS.md do repositório backend. A cópia do frontend é um retrato que deve ser conciliado explicitamente ao atualizar tarefas compartilhadas.
@@ -33,11 +33,11 @@
 
 ## Marco 2 — Quatro modos e respostas estruturadas [MVP-2]
 
-- [ ] **B007 — Schemas e renderer de blocos.** Tipos versionados para explicação, código, fórmulas, perguntas, tabelas etc.; validação e fallback seguro. **Aceite:** JSON inválido não quebra UI nem executa conteúdo arbitrário. **Dep.:** B005, B006.
-- [ ] **B008 — Estudar, Memorizar, Aprender, Praticar.** Estratégias/prompt templates separados, troca de modo mantendo tema e contexto. **Aceite:** comportamentos distintos e verificáveis; histórico preservado. **Dep.:** B007.
-- [ ] **B009 — Exercícios e correção.** Tentativas persistidas, dicas progressivas, feedback, gabarito protegido e avaliação determinística quando possível. **Aceite:** responder questão registra tentativa e feedback; gabarito não vaza antes. **Dep.:** B003, B007, B008.
+- [x] **B007 — Schemas e renderer de blocos.** Tipos versionados para explicação, código, fórmulas, perguntas, tabelas etc.; validação e fallback seguro. **Aceite:** JSON inválido não quebra UI nem executa conteúdo arbitrário. **Dep.:** B005, B006.
+- [x] **B008 — Estudar, Memorizar, Aprender, Praticar.** Estratégias/prompt templates separados, troca de modo mantendo tema e contexto. **Aceite:** comportamentos distintos e verificáveis; histórico preservado. **Dep.:** B007.
+- [x] **B009 — Exercícios e correção.** Tentativas persistidas, dicas progressivas, feedback, gabarito protegido e avaliação determinística quando possível. **Aceite:** responder questão registra tentativa e feedback; gabarito não vaza antes. **Dep.:** B003, B007, B008.
 
-**Gate do marco 2:** alternar modos em um tema, visualizar blocos e concluir exercícios reais.
+**Gate do marco 2:** VERIFICADO em 07/11/2026: quatro modos na mesma conversa com histórico preservado, blocos validados, exercício real e tentativa persistida. Banco de uso real não foi alterado; revisão 0002 validada em bancos temporários e atualização de histórico legado.
 
 ## Marco 3 — Trilhas e geração incremental [MVP-3]
 
@@ -116,6 +116,10 @@
 | 07/11/2026 | B004 | CONCLUÍDO | npm run format:check, lint, typecheck, test (5 passed) e build passaram. npm run test:e2e: 2 passed, 1 skipped (real opcional). Navegação por teclado, responsividade 1280/390 px, criação por API real, arquivar/lixeira/restaurar e HTML exibido como texto verificados. Capturas inspecionadas. | Identidade visual permanece provisória. Build emite aviso sobre diretivas use client do TanStack Query; funcionamento validado em navegador. |
 | 07/11/2026 | B005 | CONCLUÍDO | STUDY_TEST_OLLAMA_MODEL=qwen3.5:4b com pytest tests/test_real_ollama.py -q: 1 passed na repetição. E2E_REAL_MODEL=qwen3.5:4b com npm run test:e2e -- --grep "modelo local real": 1 passed. Listagem local, resposta real, SSE e falha do provedor verificados. | Primeira tentativa real falhou com MODEL_TIMEOUT; mantida como limitação documentada. GPU alvo de 6 GB NÃO TESTADA. Não há recomendação definitiva de modelo nem benchmark. |
 | 07/11/2026 | B006 | CONCLUÍDO | Testes verificaram idempotência, impedimento de geração duplicada, cancelamento com fechamento do HTTP, preservação parcial após falha, recarga e recuperação de jobs após reiniciar a aplicação. API e navegador também cancelaram geração real do Ollama. | Somente uma instância/worker por banco. CI remoto, instalação limpa completa, commit e push NÃO EXECUTADOS neste incremento. |
+| 07/11/2026 | B007 | CONCLUÍDO | Schema público 1.0 exportado, validação estrita, renderer permitido e gramática local por modo. pytest -q: 33 passed e 2 skipped (reais opcionais). npm test: 11 passed. Testados JSON inválido, blocos desconhecidos, fórmulas não confiáveis, ausência de gabaritos em mensagens/SSE, repetição limitada e falha de commit sem falso sucesso. | Rascunhos estruturados ficam ocultos e são descartados em falha/cancelamento. Nenhum banco de uso real migrado. |
+| 07/11/2026 | B008 | CONCLUÍDO | Modos e mensagens persistidos; npm run test:e2e: 4 passed e 2 skipped (reais opcionais). Capturas desktop/celular inspecionadas. STUDY_TEST_OLLAMA_MODEL=qwen3.5:4b com pytest tests/test_real_content.py -q -s: 1 passed, com documentos reais nos quatro modos. | Primeira validação real rejeitou Memorizar; após restringir a gramática ao modo, a repetição passou. Sem benchmark de 6 GB. |
+| 07/11/2026 | B009 | CONCLUÍDO | Migração aditiva 0002, gabaritos privados, dicas progressivas e tentativas idempotentes. Correção de múltipla escolha, verdadeiro/falso e lacunas testada; questão aberta com revisão sem nota. E2E_REAL_MODEL=qwen3.5:4b com npm run test:e2e -- --grep "exercício estruturado real": 1 passed; tentativa real recuperada após recarga. | Gabaritos gerados por IA podem conter erros. Não há avaliação semântica automática de questões abertas, execução de código ou métricas de domínio. |
+| 07/11/2026 | B007–B009 | CHECKS | Backend: pip check, Ruff check/format e mypy passaram. Frontend: format:check, lint, typecheck, testes e build passaram. Contratos/ADRs atualizados e schema público conciliado entre repositórios. | CI remoto, instalação limpa completa e migração do banco pessoal NÃO EXECUTADOS. Build mantém avisos de diretivas use client de dependência. Commit e push NÃO EXECUTADOS. |
 ## Próxima ação recomendada
 
-Após aprovação do Marco 2, iniciar **B007 — Schemas e renderer de blocos**, preservando a compatibilidade do histórico textual existente.
+Após aprovação do Marco 3, iniciar **B010 — Planejamento editável de trilhas**, gerando somente o plano inicial e preservando contratos e histórico existentes.

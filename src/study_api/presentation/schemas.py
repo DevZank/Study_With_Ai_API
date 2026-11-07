@@ -1,7 +1,9 @@
 from typing import Annotated, Literal, TypeVar
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, computed_field
+
+from study_api.domain.content import Choice, Mode, PublicDocument
 
 Title = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)
@@ -39,12 +41,19 @@ class ConversationView(BaseModel):
     topic_id: str
     title: str
     created_at: str
+    active_mode: Mode = "learn"
+
+
+class ModeInput(Input):
+    active_mode: Mode
 
 
 class MessageInput(Input):
     content: Prompt
     model_id: Annotated[str, StringConstraints(min_length=1, max_length=200)]
     request_id: UUID
+    mode: Mode | None = None
+    response_format: Literal["text", "blocks"] = "text"
 
 
 class MessageView(BaseModel):
@@ -55,6 +64,45 @@ class MessageView(BaseModel):
     content: str
     status: str
     model_id: str
+    created_at: str
+    mode: Mode = "learn"
+    response_format: str = "text"
+    notice: str = ""
+    document_json: str = Field(default="", exclude=True)
+
+    @computed_field
+    def document(self) -> PublicDocument | None:
+        return (
+            PublicDocument.model_validate_json(self.document_json)
+            if self.document_json
+            else None
+        )
+
+
+class ExerciseView(BaseModel):
+    id: str
+    message_id: str
+    kind: Literal["multiple_choice", "true_false", "fill_blank", "open"]
+    prompt: str
+    options: list[Choice]
+    hints: list[str]
+    hints_remaining: int
+    solution: str | None
+    explanation: str | None
+
+
+class AttemptInput(Input):
+    response: Prompt
+    request_id: UUID
+
+
+class AttemptView(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    exercise_id: str
+    response: str
+    score: float | None
+    feedback: str
     created_at: str
 
 

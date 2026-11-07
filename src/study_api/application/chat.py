@@ -3,6 +3,8 @@ import json
 import logging
 from hashlib import sha256
 
+from study_api.application.prompts import system_prompt
+from study_api.application.structured import generate_blocks
 from study_api.domain.chat import (
     AppError,
     Conversation,
@@ -12,6 +14,7 @@ from study_api.domain.chat import (
     Repository,
     Topic,
 )
+from study_api.domain.content import Mode
 
 
 class ChatService:
@@ -77,6 +80,15 @@ class ChatService:
         self.topic(conversation.topic_id)
         return conversation
 
+    def change_mode(self, conversation_id: str, mode: Mode) -> Conversation:
+        conversation = self.conversation(conversation_id)
+        if any(j.status == "running" for j in self.jobs_for(conversation_id)):
+            raise AppError(
+                "GENERATION_ACTIVE", "Aguarde ou cancele antes de trocar o modo.", 409
+            )
+        conversation.active_mode = mode
+        return self.repo.save_conversation(conversation)
+
     def change_topic(
         self, topic_id: str, title: str | None, status: str | None
     ) -> Topic:
@@ -96,15 +108,38 @@ class ChatService:
         return self.repo.save_topic(topic)
 
     async def start(
-        self, conversation_id: str, content: str, model: str, request_id: str
+        self,
+        conversation_id: str,
+        content: str,
+        model: str,
+        request_id: str,
+        mode: Mode | None = None,
+        response_format: str = "text",
     ) -> Job:
         conversation = self.conversation(conversation_id)
+        selected_mode = mode or conversation.active_mode
+        if selected_mode == "practice" and response_format != "blocks":
+            raise AppError(
+                "STRUCTURED_REQUIRED",
+                "Praticar exige blocos validados para proteger o gabarito.",
+                422,
+            )
         if self.topic(conversation.topic_id).status != "active":
             raise AppError(
                 "TOPIC_ARCHIVED", "Restaure o tema arquivado antes de enviar.", 409
             )
         fingerprint = sha256(
-            (conversation_id + "\0" + content + "\0" + model).encode()
+            (
+                conversation_id
+                + "\0"
+                + content
+                + "\0"
+                + model
+                + "\0"
+                + selected_mode
+                + "\0"
+                + response_format
+            ).encode()
         ).hexdigest()
         for job in self.repo.jobs():
             if job.request_id == request_id:
@@ -146,16 +181,30 @@ class ChatService:
                 "Esta conversa atingiu o limite inicial de contexto. Crie outra conversa no tema.",
                 409,
             )
-        user = Message(conversation_id, "user", content)
+        user = Message(
+            conversation_id,
+            "user",
+            content,
+            mode=selected_mode,
+            response_format=response_format,
+        )
         assistant = Message(
-            conversation_id, "assistant", "", status="running", model_id=model
+            conversation_id,
+            "assistant",
+            "",
+            status="running",
+            model_id=model,
+            mode=selected_mode,
+            response_format=response_format,
         )
         job = Job(conversation_id, assistant.id, model, request_id, fingerprint)
         self.repo.create_turn(user, assistant, job)
         prompts = [
             {
                 "role": "system",
-                "content": "Responda em português brasileiro. Sinalize incerteza e não invente fontes.",
+                "content": system_prompt(selected_mode)
+                if response_format == "blocks"
+                else "Responda em português brasileiro. Sinalize incerteza e não invente fontes.",
             }
         ]
         prompts += [{"role": m.role, "content": m.content} for m in history + [user]]
@@ -182,6 +231,11 @@ class ChatService:
     ) -> None:
         try:
             async with asyncio.timeout(180):
+                if message.response_format == "blocks":
+                    await generate_blocks(
+                        self.provider, self.repo, job, message, prompts
+                    )
+                    return
                 async for delta in self.provider.chat(job.model_id, prompts):
                     if len(message.content) + len(delta) > 50_000:
                         raise AppError(
@@ -205,6 +259,11 @@ class ChatService:
         except AppError as error:
             job.status = message.status = "failed"
             job.error_code, job.error_message = error.code, error.message
+            if message.response_format == "blocks":
+                job.error_message = job.error_message.replace(
+                    "O conteúdo parcial foi preservado.",
+                    "O rascunho não validado permaneceu oculto.",
+                )
         finally:
             # Uma falha inesperada também deixa um estado recuperável, sem divulgar a exceção.
             if job.status == "running":
@@ -213,7 +272,8 @@ class ChatService:
                     "GENERATION_INTERRUPTED",
                     "Geração interrompida inesperadamente.",
                 )
-            self.repo.save_job(job, message)
+            if not (message.response_format == "blocks" and job.status == "completed"):
+                self.repo.save_job(job, message)
             self.tasks.pop(job.id, None)
 
     async def cancel(self, job_id: str) -> Job:

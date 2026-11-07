@@ -11,6 +11,12 @@ python -m venv .venv
 
 O healthcheck fica em `http://127.0.0.1:8000/api/v1/health`. Para rodar os testes, use `.\.venv\Scripts\python.exe -m pytest`.
 
+Para atualizar uma instalação do Marco 1: encerre a API, copie a pasta de dados inteira para um local seguro fora do repositório e só então aplique `python -m alembic upgrade head` pelo ambiente virtual. A revisão 0002 é aditiva e preserva o histórico. Não substitua ou apague o banco. A aplicação usa uma única instância por banco; o downgrade destrutivo permanece bloqueado.
+
+O Marco 2 acrescenta modos persistidos, documentos de blocos validados e exercícios com tentativas e dicas. Questões abertas não recebem nota automática; o gabarito das objetivas é gerado por IA e pode estar incorreto.
+
+Para validar o Marco 2 com o modelo local selecionado, defina `STUDY_TEST_OLLAMA_MODEL` e execute `python -m pytest tests/test_real_content.py -q -s` pelo ambiente virtual. São usadas somente perguntas sintéticas e um banco temporário. Para exportar o contrato público, execute `python scripts/export_content_schema.py`; concilie a cópia do frontend explicitamente.
+
 Execute `.\scripts\diagnose.ps1` para diagnosticar o ambiente local. O frontend é executado separadamente e deve usar a API na porta 8000.
 
 Execute somente uma instância/worker da API por banco. Os dados ficam em `data/study.sqlite3`, ignorado pelo Git. Para outro caminho, defina `STUDY_DB_PATH` antes de migrar e iniciar. Não remova o banco para atualizar. Antes de futuras migrações em dados de uso real, pare a API e faça backup dos arquivos SQLite e seus arquivos auxiliares; valide a restauração antes de prosseguir.

@@ -421,6 +421,7 @@ Ao final de cada tarefa, apresentar:
 **Aceite:** criar tema, enviar pergunta, receber resposta real do Ollama, recarregar e recuperar histórico; falha do Ollama é explicada sem perder dados.
 
 ### Fase 2 — Quatro modos e renderer estruturado [MVP-2]
+**Estado:** concluído e verificado em 07/11/2026; evidências, comportamento de correção e limitações no TASKS.md. Banco pessoal não migrado automaticamente.
 **Entregas:** prompts por modo, contratos JSON, blocos visuais, validação, fallback, quizzes simples, correção e dicas.  
 **Aceite:** mesmo tema suporta alternância dos quatro modos; conteúdo inválido não quebra a tela; exercício real registra tentativa.
 
@@ -458,9 +459,9 @@ Ao final de cada tarefa, apresentar:
 - [x] B004 Criar shell React, navegação, tema visual e estados de UI.
 - [x] B005 Integrar Ollama com descoberta de modelos, healthcheck e streaming.
 - [x] B006 Persistir mensagens e tratar interrupções de geração.
-- [ ] B007 Definir schema versionado de blocos e renderer seguro.
-- [ ] B008 Implementar quatro modos e prompts testáveis.
-- [ ] B009 Criar banco de exercícios e correção com evidências.
+- [x] B007 Definir schema versionado de blocos e renderer seguro.
+- [x] B008 Implementar quatro modos e prompts testáveis.
+- [x] B009 Criar banco de exercícios e correção com evidências.
 - [ ] B010 Implementar planejamento editável de trilhas.
 - [ ] B011 Implementar jobs e geração incremental de módulos.
 - [ ] B012 Implementar resumos estruturados e controle de contexto.

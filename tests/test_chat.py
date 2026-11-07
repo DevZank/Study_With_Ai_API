@@ -32,7 +32,10 @@ class TestProvider:
             raise AppError("MODEL_UNAVAILABLE", "Modelo indisponível.", 422)
 
     async def chat(
-        self, model: str, messages: list[dict[str, str]]
+        self,
+        model: str,
+        messages: list[dict[str, str]],
+        response_schema: dict[str, object] | None = None,
     ) -> AsyncIterator[str]:
         try:
             yield "Parte inicial"

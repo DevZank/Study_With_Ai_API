@@ -14,6 +14,7 @@ from study_api.presentation.schemas import (
     JobView,
     MessageInput,
     MessageView,
+    ModeInput,
     ModelsView,
     Page,
     StreamView,
@@ -130,8 +131,27 @@ async def send_message(
 ) -> JobView:
     return JobView.model_validate(
         await s.start(
-            str(conversation_id), body.content, body.model_id, str(body.request_id)
+            str(conversation_id),
+            body.content,
+            body.model_id,
+            str(body.request_id),
+            body.mode,
+            body.response_format,
         )
+    )
+
+
+@router.get("/conversations/{conversation_id}")
+async def conversation(conversation_id: UUID, s: Service) -> ConversationView:
+    return ConversationView.model_validate(s.conversation(str(conversation_id)))
+
+
+@router.patch("/conversations/{conversation_id}")
+async def change_mode(
+    conversation_id: UUID, body: ModeInput, s: Service
+) -> ConversationView:
+    return ConversationView.model_validate(
+        s.change_mode(str(conversation_id), body.active_mode)
     )
 
 

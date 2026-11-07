@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -14,11 +15,16 @@ from study_api.domain.chat import Provider
 from study_api.infrastructure.db.database import database_path, engine_for
 from study_api.infrastructure.db.repository import SqliteRepository
 from study_api.infrastructure.ollama import OllamaProvider
+from study_api.presentation.exercises import router as exercises_router
 from study_api.presentation.health import router as health_router
 from study_api.presentation.routes import router
 
 
 def create_app(path: Path | None = None, provider: Provider | None = None) -> FastAPI:
+    frontend_port = int(os.environ.get("STUDY_WEB_PORT", "5173"))
+    if not 0 < frontend_port <= 65535:
+        raise ValueError("Porta local inválida.")
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         engine = engine_for(path or database_path())
@@ -55,6 +61,8 @@ def create_app(path: Path | None = None, provider: Provider | None = None) -> Fa
         if request.method not in {"GET", "HEAD", "OPTIONS"}:
             origin = request.headers.get("origin")
             if origin and origin not in {
+                f"http://127.0.0.1:{frontend_port}",
+                f"http://localhost:{frontend_port}",
                 "http://127.0.0.1:5173",
                 "http://localhost:5173",
                 "http://127.0.0.1:8000",
@@ -81,6 +89,7 @@ def create_app(path: Path | None = None, provider: Provider | None = None) -> Fa
 
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(router, prefix="/api/v1")
+    app.include_router(exercises_router, prefix="/api/v1")
     return app
 
 

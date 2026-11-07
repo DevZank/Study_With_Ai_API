@@ -1,8 +1,15 @@
+from __future__ import annotations
+
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 from uuid import uuid4
+
+from study_api.domain.content import Mode
+
+if TYPE_CHECKING:
+    from study_api.domain.exercises import Attempt, Exercise
 
 Status = Literal["running", "completed", "failed", "cancelled", "interrupted"]
 LOCAL_PROFILE_ID = "00000000-0000-0000-0000-000000000001"
@@ -36,6 +43,7 @@ class Topic:
 class Conversation:
     topic_id: str
     title: str = "Nova conversa"
+    active_mode: Mode = "learn"
     id: str = field(default_factory=new_id)
     owner_id: str = LOCAL_PROFILE_ID
     created_at: str = field(default_factory=now)
@@ -49,6 +57,10 @@ class Message:
     content: str
     status: str = "completed"
     model_id: str = ""
+    mode: Mode = "learn"
+    response_format: str = "text"
+    document_json: str = ""
+    notice: str = ""
     id: str = field(default_factory=new_id)
     owner_id: str = LOCAL_PROFILE_ID
     created_at: str = field(default_factory=now)
@@ -85,11 +97,21 @@ class Repository(Protocol):
     def jobs(self) -> list[Job]: ...
     def create_turn(self, user: Message, assistant: Message, job: Job) -> None: ...
     def save_job(self, job: Job, message: Message) -> None: ...
+    def save_result(
+        self, job: Job, message: Message, exercises: list[Exercise]
+    ) -> None: ...
+    def exercise(self, exercise_id: str) -> Exercise: ...
+    def attempts(self, exercise_id: str) -> list[Attempt]: ...
+    def save_attempt(self, attempt: Attempt) -> Attempt: ...
+    def reveal_hint(self, exercise_id: str) -> Exercise: ...
 
 
 class Provider(Protocol):
     async def models(self) -> list[str]: ...
     async def validate_model(self, model: str) -> None: ...
     def chat(
-        self, model: str, messages: list[dict[str, str]]
+        self,
+        model: str,
+        messages: list[dict[str, str]],
+        response_schema: dict[str, object] | None = None,
     ) -> AsyncIterator[str]: ...

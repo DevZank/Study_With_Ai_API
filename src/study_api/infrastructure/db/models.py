@@ -1,4 +1,4 @@
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, text
+from sqlalchemy import CheckConstraint, Float, ForeignKey, Index, String, Text, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -30,6 +30,7 @@ class ConversationRow(Record, Base):
     __tablename__ = "conversations"
     topic_id: Mapped[str] = mapped_column(ForeignKey("topics.id"), index=True)
     title: Mapped[str]
+    active_mode: Mapped[str] = mapped_column(server_default="learn")
 
 
 class MessageRow(Record, Base):
@@ -41,6 +42,10 @@ class MessageRow(Record, Base):
     content: Mapped[str] = mapped_column(Text)
     model_id: Mapped[str]
     status: Mapped[str]
+    mode: Mapped[str] = mapped_column(server_default="learn")
+    response_format: Mapped[str] = mapped_column(server_default="text")
+    document_json: Mapped[str] = mapped_column(Text, server_default="")
+    notice: Mapped[str] = mapped_column(Text, server_default="")
     __table_args__ = (
         CheckConstraint("role IN ('user','assistant')"),
         CheckConstraint(
@@ -55,8 +60,8 @@ class JobRow(Record, Base):
         ForeignKey("conversations.id"), index=True
     )
     message_id: Mapped[str] = mapped_column(ForeignKey("messages.id"))
-    model_id: Mapped[str]
     request_id: Mapped[str] = mapped_column(unique=True)
+    model_id: Mapped[str]
     request_hash: Mapped[str]
     status: Mapped[str]
     error_code: Mapped[str]
@@ -72,3 +77,27 @@ class JobRow(Record, Base):
             sqlite_where=text("status = 'running'"),
         ),
     )
+
+
+class ExerciseRow(Record, Base):
+    __tablename__ = "exercises"
+    message_id: Mapped[str] = mapped_column(ForeignKey("messages.id"), index=True)
+    kind: Mapped[str]
+    prompt: Mapped[str] = mapped_column(Text)
+    options_json: Mapped[str] = mapped_column(Text)
+    answer_key: Mapped[str] = mapped_column(Text)
+    explanation: Mapped[str] = mapped_column(Text)
+    hints_json: Mapped[str] = mapped_column(Text)
+    hints_revealed: Mapped[int] = mapped_column(server_default="0")
+    __table_args__ = (
+        CheckConstraint("kind IN ('multiple_choice','true_false','fill_blank','open')"),
+    )
+
+
+class AttemptRow(Record, Base):
+    __tablename__ = "exercise_attempts"
+    exercise_id: Mapped[str] = mapped_column(ForeignKey("exercises.id"), index=True)
+    response: Mapped[str] = mapped_column(Text)
+    request_id: Mapped[str] = mapped_column(unique=True)
+    score: Mapped[float | None] = mapped_column(Float)
+    feedback: Mapped[str] = mapped_column(Text)

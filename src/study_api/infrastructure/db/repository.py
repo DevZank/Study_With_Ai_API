@@ -14,8 +14,11 @@ from study_api.domain.chat import (
     Topic,
     now,
 )
+from study_api.domain.exercises import Exercise
+from study_api.infrastructure.db.exercises import ExerciseStore
 from study_api.infrastructure.db.models import (
     ConversationRow,
+    ExerciseRow,
     JobRow,
     MessageRow,
     TopicRow,
@@ -33,7 +36,7 @@ ROWS: dict[
 }
 
 
-class SqliteRepository:
+class SqliteRepository(ExerciseStore):
     def __init__(self, engine: Engine) -> None:
         self.engine = engine
 
@@ -112,6 +115,7 @@ class SqliteRepository:
                 if conversation is None:
                     raise AppError("NOT_FOUND", "Conversa não encontrada.", 404)
                 conversation.updated_at = timestamp
+                conversation.active_mode = assistant.mode
                 session.execute(
                     update(TopicRow)
                     .where(TopicRow.id == conversation.topic_id)
@@ -125,7 +129,14 @@ class SqliteRepository:
             ) from error
 
     def save_job(self, job: Job, message: Message) -> None:
+        self.save_result(job, message, [])
+
+    def save_result(
+        self, job: Job, message: Message, exercises: list[Exercise]
+    ) -> None:
         job.updated_at = message.updated_at = now()
         with Session(self.engine) as session, session.begin():
             session.merge(JobRow(**asdict(job)))
             session.merge(MessageRow(**asdict(message)))
+            session.flush()
+            session.add_all(ExerciseRow(**asdict(exercise)) for exercise in exercises)
