@@ -17,6 +17,8 @@ O Marco 2 acrescenta modos persistidos, documentos de blocos validados e exercí
 
 O Marco 3 acrescenta trilhas editáveis, conteúdo gerado uma unidade por vez, versões preservadas e resumos de continuidade limitados. Para atualizar do Marco 2, faça o backup descrito acima e aplique a revisão aditiva 0003 com Alembic. O banco pessoal não é atualizado automaticamente. Consulte a [ADR 0004](docs/architecture/0004-incremental-trails.md).
 
+O Marco 4 acrescenta cadernos, pastas, páginas com versões, recortes com origem e cenas de desenho editáveis. Antes de usar com dados pessoais, encerre a API, faça backup validado da pasta de dados e execute `.\.venv\Scripts\python.exe -m alembic upgrade head` para aplicar a revisão aditiva 0004. Não apague nem substitua o banco. A entrega não migra os dados pessoais automaticamente. Consulte a [ADR 0005](docs/architecture/0005-local-notebooks.md).
+
 Para a validação real de trilhas, defina `STUDY_TEST_OLLAMA_MODEL` e execute `python -m pytest tests/test_real_trails.py -q -s` pelo ambiente virtual. O teste cria cinco módulos, gera duas unidades e usa o resumo da primeira na segunda, somente com dados sintéticos e banco temporário.
 
 Para validar o Marco 2 com o modelo local selecionado, defina `STUDY_TEST_OLLAMA_MODEL` e execute `python -m pytest tests/test_real_content.py -q -s` pelo ambiente virtual. São usadas somente perguntas sintéticas e um banco temporário. Para exportar o contrato público, execute `python scripts/export_content_schema.py`; concilie a cópia do frontend explicitamente.

@@ -1,6 +1,6 @@
 # Planejamento de Construção — Plataforma de Estudos com IA
 
-> **Versão:** 1.0 — 06/11/2026  
+> **Versão:** 1.1 — 08/11/2026
 > **Status:** Especificação para implementação incremental  
 > **Idioma do produto e comentários de código:** Português brasileiro (pt-BR)  
 > **Estratégia:** Local-first, extensível para produto comercial
@@ -50,7 +50,7 @@ Construir uma aplicação web executada localmente que transforme qualquer tema 
 - Pastas, páginas, tags, links internos, busca, editor rico, listas, tabelas, blocos de código, fórmulas, imagens e anexos.
 - Selecionar trecho de qualquer resposta da IA → ação contextual **“Salvar no caderno”** → escolher página ou criar uma; preservar origem (tema, mensagem, data, intervalo selecionado) e permitir editar a cópia.
 - **Desenho livre:** pincel, caneta, borracha, formas, setas, texto, cores, zoom/pan, seleção, mover/redimensionar, desfazer/refazer; idealmente canvas infinito com inserção de imagens e links para notas.
-- Estratégia recomendada: TipTap para documentos e tldraw ou Excalidraw embutido para quadros; validar licença e viabilidade comercial antes da escolha final.
+- Estratégia adotada no Marco 4: TipTap para documentos e Excalidraw embutido para quadros, após aprovação do responsável e conferência de licenças. Avisos e limites registrados na ADR 0005; auditoria completa de distribuição permanece em B025.
 - Autosave, recuperação de rascunhos, exportação, importação e versionamento básico; não sobrescrever conteúdo autoral por ação da IA.
 - Transformar notas em flashcards/exercícios **somente sob comando**; IA pode consultar notas selecionadas com consentimento contextual.
 
@@ -115,7 +115,7 @@ Construir uma aplicação web executada localmente que transforme qualquer tema 
 | IA local | Ollama | HTTP local, modelos configuráveis |
 | Provedores cloud | Adaptadores OpenAI/Gemini | Sem SDK espalhado no domínio |
 | Editor de notas | TipTap | Rich text serializado e versionado |
-| Quadro de desenho | tldraw ou Excalidraw (avaliar) | Verificar licença comercial |
+| Quadro de desenho | Excalidraw 0.18.1 | MIT; fontes e avisos conferidos no Marco 4 |
 | Busca | SQLite FTS5 | Vetorial opcional por interface |
 | Fórmulas/código | KaTeX + Shiki | Renderização segura |
 | Revisão | FSRS | Testes determinísticos |
@@ -426,10 +426,12 @@ Ao final de cada tarefa, apresentar:
 **Aceite:** mesmo tema suporta alternância dos quatro modos; conteúdo inválido não quebra a tela; exercício real registra tentativa.
 
 ### Fase 3 — Trilhas e geração incremental [MVP-3]
+**Estado:** concluído e verificado em 08/11/2026; evidências no TASKS.md e na ADR 0004. Banco pessoal não migrado automaticamente.
 **Entregas:** wizard de objetivo, planejamento editável, reordenação de módulos, jobs de geração, granularidade automática, versões e resumo estruturado.  
 **Aceite:** criar trilha de cinco módulos sem gerar aulas futuras; abrir módulo 1 gera apenas sua unidade necessária; módulo 2 permanece não gerado; recarregar preserva plano e progresso.
 
 ### Fase 4 — Caderno com texto, desenho e recortes [MVP-4]
+**Estado:** concluído e verificado em 08/11/2026; evidências no TASKS.md e na ADR 0005. Excalidraw e exportação .excalidraw/PNG aprovados pelo responsável; TipTap e Excalidraw adotados com licença MIT e avisos de fontes preservados. Backup/instalação global de B024 permanece futuro.
 **Entregas:** caderno global e por tema, pastas, editor rico, seleção → salvar no caderno, quadro de desenho, autosave e recuperação.  
 **Aceite:** selecionar texto de resposta, salvar com origem, editar, desenhar, recarregar e recuperar texto e desenho sem perda; vínculos funcionam entre cadernos.
 
@@ -462,12 +464,12 @@ Ao final de cada tarefa, apresentar:
 - [x] B007 Definir schema versionado de blocos e renderer seguro.
 - [x] B008 Implementar quatro modos e prompts testáveis.
 - [x] B009 Criar banco de exercícios e correção com evidências.
-- [ ] B010 Implementar planejamento editável de trilhas.
-- [ ] B011 Implementar jobs e geração incremental de módulos.
-- [ ] B012 Implementar resumos estruturados e controle de contexto.
-- [ ] B013 Criar cadernos, pastas e páginas de rich text.
-- [ ] B014 Implementar seleção de resposta → recorte com proveniência.
-- [ ] B015 Integrar canvas de desenho editável e autosave.
+- [x] B010 Implementar planejamento editável de trilhas.
+- [x] B011 Implementar jobs e geração incremental de módulos.
+- [x] B012 Implementar resumos estruturados e controle de contexto.
+- [x] B013 Criar cadernos, pastas e páginas de rich text.
+- [x] B014 Implementar seleção de resposta → recorte com proveniência.
+- [x] B015 Integrar canvas de desenho editável e autosave.
 - [ ] B016 Implementar flashcards, FSRS e agenda de revisões.
 - [ ] B017 Implementar métricas de progresso, domínio e retenção.
 - [ ] B018 Implementar XP, níveis e conquistas leves.
@@ -505,10 +507,10 @@ Ao final de cada tarefa, apresentar:
 1. **Nome e identidade visual** do produto.
 2. **Sistema operacional-alvo inicial** (Windows prioritário? macOS/Linux?).
 3. **Política de licenças**: código proprietário, open-core ou outra estratégia comercial.
-4. **Licença e escolha final do canvas** (tldraw vs Excalidraw vs alternativa compatível).
+4. **Canvas decidido no Marco 4:** Excalidraw 0.18.1, MIT, aprovado pelo responsável. Manter avisos das fontes e reavaliar dependências na auditoria comercial B025.
 5. **Mecanismo de pesquisa web** e custos/termos do provedor; manter interface abstrata até escolher.
 6. **Lista de modelos Ollama recomendados** após benchmark real no hardware de 6 GB.
-7. **Formato de exportação/importação** de caderno e desenhos; preservar formato editável.
+7. **Desenhos no Marco 4:** exportação editável .excalidraw e imagem PNG aprovadas. Exportação/importação global de cadernos e backup permanecem em B024, com formato final ainda pendente.
 8. **Autenticação/sincronização futura**: apenas preparar fronteiras, não implementar sem decisão.
 9. **Escopo de execução de exercícios de código**: não executar código arbitrário antes de projetar sandbox.
 10. **Padrão de segurança para chaves** conforme SO e forma de distribuição.

@@ -2,7 +2,7 @@
 
 > **Fonte de requisitos:** `PLANEJAMENTO_PLATAFORMA_ESTUDOS_IA.md`  
 > **Regras para agentes:** `AGENTS.md`  
-> **Estado atual:** Marcos 0–3 verificados localmente no Windows; Marco 4 não iniciado.
+> **Estado atual:** Marcos 0–4 verificados localmente no Windows; Marco 5 não iniciado.
 > **Estratégia:** concluir uma fase por vez, sem antecipar funcionalidades não aprovadas.
 
 > Referência principal do progresso integrado: TASKS.md do repositório backend. A cópia do frontend é um retrato que deve ser conciliado explicitamente ao atualizar tarefas compartilhadas.
@@ -49,11 +49,11 @@
 
 ## Marco 4 — Caderno livre [MVP-4]
 
-- [ ] **B013 — Caderno global e por tema.** Pastas, páginas, editor rico, vínculos, pesquisa e persistência. **Aceite:** criar/editar/mover notas e recuperar após reiniciar. **Dep.:** B003, B004.
-- [ ] **B014 — Seleção de resposta → caderno.** Selecionar trecho, salvar com fonte, tema e módulo, editar cópia sem alterar original. **Aceite:** recorte mantém proveniência e funciona nos dois tipos de caderno. **Dep.:** B007, B013.
-- [ ] **B015 — Desenho livre editável.** Canvas com traços, formas, setas, texto, zoom/pan, desfazer/refazer, autosave e exportação; verificar licença comercial da biblioteca antes de escolher. **Aceite:** desenhar, recarregar e continuar editando sem perda. **Dep.:** B013, decisão de biblioteca/licença.
+- [x] **B013 — Caderno global e por tema.** Pastas, páginas, editor rico, vínculos, pesquisa e persistência. **Aceite:** criar/editar/mover notas e recuperar após reiniciar. **Dep.:** B003, B004.
+- [x] **B014 — Seleção de resposta → caderno.** Selecionar trecho, salvar com fonte, tema e módulo, editar cópia sem alterar original. **Aceite:** recorte mantém proveniência e funciona nos dois tipos de caderno. **Dep.:** B007, B013.
+- [x] **B015 — Desenho livre editável.** Canvas com traços, formas, setas, texto, zoom/pan, desfazer/refazer, autosave e exportação; verificar licença comercial da biblioteca antes de escolher. **Aceite:** desenhar, recarregar e continuar editando sem perda. **Dep.:** B013, decisão de biblioteca/licença.
 
-**Gate do marco 4:** anotações textuais e gráficas editáveis, integradas aos conteúdos estudados.
+**Gate do marco 4:** VERIFICADO em 08/11/2026, com bancos temporários: cadernos globais/por tema/trilha, texto rico, pastas, vínculos, busca, movimentação, recortes com origem e desenho recuperado após recarga. Usuário aprovou Excalidraw e .excalidraw/PNG. Bibliotecas principais MIT e avisos de fontes conferidos/preservados. API com conflitos e histórico; rascunho recuperado após falha de rede. Banco pessoal não migrado.
 
 ## Marco 5 — Memorização e progresso [MVP-5]
 
@@ -125,6 +125,11 @@
 | 08/11/2026 | B012 | CONCLUÍDO | Resumo persistido com dificuldades informadas e tentativas reais. Teste verifica máximo de três resumos e 4.500 caracteres. STUDY_TEST_OLLAMA_MODEL=qwen3.5:4b com pytest tests/test_real_trails.py: 1 passed em 137,90 s; segunda unidade real usa resumo da primeira. | Domínio/retenção não estimados; evidência do resumo é um snapshot de conclusão. |
 | 08/11/2026 | B010–B012 | CHECKS | Backend: 37 passed, 3 skipped; Ruff, mypy e pip check aprovados. Frontend: 11 testes passaram; format/lint/typecheck/build aprovados; E2E 5 passed, 2 skipped. Contratos, ADR e TASKS conciliados entre repositórios. Ver docs/development/milestone3-validation.md. | CI remoto, banco pessoal, instalação limpa e benchmark de 6 GB NÃO EXECUTADOS. E2E real de trilha no navegador NÃO EXECUTADO; integração real validada por API. Commit/push NÃO EXECUTADOS. |
 
+| 08/11/2026 | B013 | CONCLUÍDO | Migração 0004 aditiva; cadernos/pastas/páginas com proprietário, revisão e conflitos. Testes API de edição, movimentação, busca e reinício; E2E de texto rico, vínculo navegável e movimento entre cadernos. | Busca simples por caderno; FTS e anexos gerais são de B019. Rascunhos dependem do armazenamento do navegador. |
+| 08/11/2026 | B014 | CONCLUÍDO | Recorte validado contra resposta persistida, intervalo Unicode e origem imutável; cópia editável sem modificar fonte. Testes de trilha com módulo/unidade/versão nos cadernos global e por tema; E2E com origem e recuperação após falha de rede. | Seleções de blocos visuais têm representação textual própria no painel de recorte. |
+| 08/11/2026 | B015 | CONCLUÍDO | Excalidraw 0.18.1 e .excalidraw/PNG aprovados pelo usuário; MIT e avisos de fontes preservados. E2E desenha forma, recarrega, recupera cena e confere JSON editável/assinatura PNG. Fontes locais; auditoria npm sem vulnerabilidades após overrides. | Desfazer/refazer é da sessão; não há histórico de todas as cenas. Auditoria completa comercial/de acessibilidade permanece futura. |
+| 08/11/2026 | B013–B015 | CHECKS | Backend: pytest 48 passed, 3 skipped; Ruff check/format, mypy e pip check aprovados. Frontend: 11 testes unitários; format/lint/typecheck/build aprovados; E2E Edge 8 passed, 2 skipped. Capturas desktop/celular inspecionadas e largura 390 px sem rolagem horizontal. Contratos, ADR, planejamento e TASKS conciliados. Ver docs/development/milestone4-validation.md. | CI remoto, instalação limpa completa, banco pessoal e benchmark NÃO EXECUTADOS. Modelo real não foi chamado neste marco, pois o caderno não depende de IA. Commit/push NÃO EXECUTADOS. |
+
 ## Próxima ação recomendada
 
-Após aprovação do Marco 4, iniciar **B013 — Caderno global e por tema**. A biblioteca e a licença de desenho de B015 continuam pendentes de decisão. Antes de usar o Marco 3 no banco pessoal, encerrar a API, fazer backup validado e aplicar Alembic até a revisão 0003 conforme o README.
+Após aprovação do Marco 5, iniciar **B016 — Flashcards e revisão espaçada**. Antes de usar o Marco 4 no banco pessoal, encerrar a API, fazer backup validado e aplicar Alembic até a revisão 0004 conforme o README. A escolha do quadro foi resolvida neste marco; a auditoria completa de distribuição permanece em B025.

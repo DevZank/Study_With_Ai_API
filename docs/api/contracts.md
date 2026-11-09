@@ -1,4 +1,4 @@
-# Contrato HTTP — Marcos 1–3
+# Contrato HTTP — Marcos 1–4
 
 A API publica sua descrição em `/openapi.json`. Base: `/api/v1`. O frontend acessa a mesma base pelo proxy Vite. Nenhum arquivo de código é importado entre repositórios.
 
@@ -65,3 +65,31 @@ No fluxo blocks, os eventos SSE não contêm JSON bruto ou rascunhos de gabarito
 ModulePlan contém title, objectives (1–6), criteria (1–4), estimated_minutes (5–180) e lesson_titles (1–6); textos curtos têm até 160 caracteres. O plano não contém aulas geradas. TrailJob contém kind=plan/unit/summary, status, target_id, trail_id, result_id, cached e erro seguro. result_id identifica respectivamente trilha, versão ou resumo. O fingerprint e child_job_id são metadados de coordenação, sem prompts ou gabaritos.
 
 Repetições da mesma operação devem manter request_id. Nova geração ou nova tentativa após job falho usa novo UUID. A revisão esperada evita sobrescrever edição concorrente; STALE_PLAN exige recarregar. O cache não atualiza versões antigas quando o plano muda: o cliente deve pedir force_regenerate explicitamente. Versões e resumos têm IDs próprios e são preservados. O campo context é um snapshot JSON de resumos limitados, sem histórico bruto. Veja a [ADR 0004](../architecture/0004-incremental-trails.md) para orçamento, contagem de progresso e recuperação de interrupções.
+
+## Extensões do Marco 4
+
+| Método e rota | Entrada / resultado |
+| --- | --- |
+| GET /notebooks | Array de cadernos locais globais/por tema; temas na lixeira ficam ocultos |
+| POST /notebooks | title, topic_id opcional, trail_id opcional; 201 Notebook |
+| GET /notebooks/{id}/folders | Array de pastas |
+| POST /notebooks/{id}/folders | title, parent_id opcional; 201 Folder |
+| PATCH /folders/{id} | title, parent_id opcional, expected_version; Folder atualizado |
+| GET /notebooks/{id}/pages | Array de páginas; q pesquisa título/texto/tags, até 120 caracteres |
+| POST /notebooks/{id}/pages | title, folder_id opcional; 201 NotePage com quadro vazio |
+| GET /pages/{id} | NotePage com document JSON, tags, topic_ids e linked_page_ids |
+| PATCH /pages/{id} | title, notebook_id, folder_id, document, tags, topic_ids, linked_page_ids, expected_version e operation_id; NotePage atualizado |
+| GET /pages/{id}/revisions | Até 30 revisões recentes com snapshot completo |
+| GET /pages/{id}/clippings | Recortes imutáveis com origem e intervalo |
+| POST /pages/{id}/clippings | message_id, start, end, selected_text, expected_version, operation_id; 201 NotePage com cópia acrescentada |
+| GET /messages/{id}/clipping-source | text canônico e source construídos pelo backend, somente resposta concluída de IA |
+| GET /pages/{id}/drawing | Drawing com version e scene |
+| PUT /pages/{id}/drawing | scene, expected_version e operation_id; Drawing atualizado |
+
+As listagens de caderno usam arrays nesta versão; não utilizam o envelope paginado de temas/conversas. Não importar contratos Python no frontend: a descrição completa está no OpenAPI do backend em execução, e o consumidor valida os resultados com Zod.
+
+Todos os IDs de entrada são UUID. A hierarquia de pastas é limitada a oito níveis e não admite ciclos; não se pode mover uma página para uma pasta de outro caderno. NotePage tem version para concorrência; o desenho tem version independente. NOTE_CONFLICT (409) exige conciliar o rascunho com a versão atual. operation_id deve ser reutilizado somente na repetição do mesmo envio. Atualizações de página, revisão e recorte são transacionais.
+
+Documentos TipTap são JSON com nós/marcas permitidos: parágrafos, títulos, listas, citações, código, tabelas, fórmulas e formatação básica. Não são aceitos HTML arbitrário, imagens remotas ou links javascript. Limites: 250.000 caracteres de JSON, 3.000 nós, profundidade 16, 20 tags/temas/vínculos. Desenhos usam type=excalidraw, version=2, source=study-local, elements, appState e files; apenas imagens locais PNG/JPEG/WebP, até 500 KB cada, dez arquivos e 2,5 MB por cena. O limite HTTP de 3 MB é exclusivo de /pages e /notebooks; demais rotas mantêm 32 KB.
+
+O intervalo do recorte é [start,end), em pontos de código Unicode no text da origem canônica, e deve corresponder exatamente a selected_text. source registra tema/conversa/mensagem/data/modelo e os IDs de trilha/módulo/unidade/versão quando existentes. É preenchido pelo servidor, nunca aceito do cliente. Soluções privadas de exercícios não fazem parte dessa representação. O documento recebe uma cópia editável; modificar a cópia preserva recorte e resposta original. Veja a [ADR 0005](../architecture/0005-local-notebooks.md).
