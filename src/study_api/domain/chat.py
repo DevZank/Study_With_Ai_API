@@ -44,6 +44,7 @@ class Conversation:
     topic_id: str
     title: str = "Nova conversa"
     active_mode: Mode = "learn"
+    origin: str = "free"
     id: str = field(default_factory=new_id)
     owner_id: str = LOCAL_PROFILE_ID
     created_at: str = field(default_factory=now)

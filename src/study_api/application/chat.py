@@ -39,7 +39,7 @@ class ChatService:
 
     def list_conversations(self, topic_id: str) -> list[Conversation]:
         self.topic(topic_id)
-        return self.repo.conversations(topic_id)
+        return [c for c in self.repo.conversations(topic_id) if c.origin == "free"]
 
     def create_conversation(self, topic_id: str, title: str) -> Conversation:
         if self.topic(topic_id).status != "active":
@@ -203,7 +203,7 @@ class ChatService:
             {
                 "role": "system",
                 "content": system_prompt(selected_mode)
-                if response_format == "blocks"
+                if response_format in {"blocks", "lesson"}
                 else "Responda em português brasileiro. Sinalize incerteza e não invente fontes.",
             }
         ]
@@ -231,7 +231,7 @@ class ChatService:
     ) -> None:
         try:
             async with asyncio.timeout(180):
-                if message.response_format == "blocks":
+                if message.response_format in {"blocks", "lesson"}:
                     await generate_blocks(
                         self.provider, self.repo, job, message, prompts
                     )
@@ -259,7 +259,7 @@ class ChatService:
         except AppError as error:
             job.status = message.status = "failed"
             job.error_code, job.error_message = error.code, error.message
-            if message.response_format == "blocks":
+            if message.response_format in {"blocks", "lesson"}:
                 job.error_message = job.error_message.replace(
                     "O conteúdo parcial foi preservado.",
                     "O rascunho não validado permaneceu oculto.",
@@ -272,7 +272,10 @@ class ChatService:
                     "GENERATION_INTERRUPTED",
                     "Geração interrompida inesperadamente.",
                 )
-            if not (message.response_format == "blocks" and job.status == "completed"):
+            if not (
+                message.response_format in {"blocks", "lesson"}
+                and job.status == "completed"
+            ):
                 self.repo.save_job(job, message)
             self.tasks.pop(job.id, None)
 

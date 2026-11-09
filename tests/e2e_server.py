@@ -9,6 +9,7 @@ from pathlib import Path
 import uvicorn
 from alembic.config import Config
 from content_fixture import generated, prompt_mode
+from trail_fixture import lesson_payload, plan_payload, summary_payload
 
 from alembic import command
 from study_api.domain.chat import AppError
@@ -30,6 +31,21 @@ class E2EProvider:
         response_schema: dict[str, object] | None = None,
     ) -> AsyncIterator[str]:
         if response_schema is not None:
+            title = response_schema.get("title")
+            if (
+                title in {"GeneratedPlan", "GeneratedSummary"}
+                or "Gere SOMENTE esta unidade" in messages[-1]["content"]
+            ):
+                value = (
+                    plan_payload()
+                    if title == "GeneratedPlan"
+                    else summary_payload()
+                    if title == "GeneratedSummary"
+                    else lesson_payload()
+                )
+                await asyncio.sleep(0.4)
+                yield json.dumps(value, ensure_ascii=False)
+                return
             prompt = next(
                 m["content"] for m in reversed(messages) if m["role"] == "user"
             )

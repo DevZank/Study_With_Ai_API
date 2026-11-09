@@ -2,7 +2,7 @@
 
 > **Fonte de requisitos:** `PLANEJAMENTO_PLATAFORMA_ESTUDOS_IA.md`  
 > **Regras para agentes:** `AGENTS.md`  
-> **Estado atual:** Marcos 0, 1 e 2 verificados localmente no Windows; Marco 3 não iniciado.
+> **Estado atual:** Marcos 0–3 verificados localmente no Windows; Marco 4 não iniciado.
 > **Estratégia:** concluir uma fase por vez, sem antecipar funcionalidades não aprovadas.
 
 > Referência principal do progresso integrado: TASKS.md do repositório backend. A cópia do frontend é um retrato que deve ser conciliado explicitamente ao atualizar tarefas compartilhadas.
@@ -41,11 +41,11 @@
 
 ## Marco 3 — Trilhas e geração incremental [MVP-3]
 
-- [ ] **B010 — Planejamento editável de trilhas.** Formulário de objetivo, plano inicial somente com metadados, editar/reordenar módulos. **Aceite:** gerar trilha sem gerar aulas futuras; edição persiste. **Dep.:** B003, B007, B008.
-- [ ] **B011 — Geração sob demanda.** Jobs canceláveis, granularidade automática módulo/aula, cache e versionamento. **Aceite:** abrir módulo 1 gera apenas a unidade necessária; módulos seguintes continuam não gerados. **Dep.:** B010.
-- [ ] **B012 — Resumo estruturado e controle de contexto.** Resumir conclusões, dificuldades e conceitos; limitar contexto enviado ao modelo. **Aceite:** próximo módulo usa resumo persistido, não todo histórico bruto. **Dep.:** B011, B009.
+- [x] **B010 — Planejamento editável de trilhas.** Formulário de objetivo, plano inicial somente com metadados, editar/reordenar módulos. **Aceite:** gerar trilha sem gerar aulas futuras; edição persiste. **Dep.:** B003, B007, B008.
+- [x] **B011 — Geração sob demanda.** Jobs canceláveis, granularidade automática módulo/aula, cache e versionamento. **Aceite:** abrir módulo 1 gera apenas a unidade necessária; módulos seguintes continuam não gerados. **Dep.:** B010.
+- [x] **B012 — Resumo estruturado e controle de contexto.** Resumir conclusões, dificuldades e conceitos; limitar contexto enviado ao modelo. **Aceite:** próximo módulo usa resumo persistido, não todo histórico bruto. **Dep.:** B011, B009.
 
-**Gate do marco 3:** trilha editável com geração incremental, progresso persistido e continuidade contextual.
+**Gate do marco 3:** VERIFICADO em 08/11/2026 com bancos temporários: plano de cinco módulos sem aulas futuras, edição persistida, geração incremental, versões/cache, cancelamento, resumo persistido e continuidade limitada. Ollama real qwen3.5:4b validado por API; navegador validado com provedor determinístico exclusivo de teste. Migração 0002→0003 preserva histórico sintético. Banco pessoal não foi migrado.
 
 ## Marco 4 — Caderno livre [MVP-4]
 
@@ -120,6 +120,11 @@
 | 07/11/2026 | B008 | CONCLUÍDO | Modos e mensagens persistidos; npm run test:e2e: 4 passed e 2 skipped (reais opcionais). Capturas desktop/celular inspecionadas. STUDY_TEST_OLLAMA_MODEL=qwen3.5:4b com pytest tests/test_real_content.py -q -s: 1 passed, com documentos reais nos quatro modos. | Primeira validação real rejeitou Memorizar; após restringir a gramática ao modo, a repetição passou. Sem benchmark de 6 GB. |
 | 07/11/2026 | B009 | CONCLUÍDO | Migração aditiva 0002, gabaritos privados, dicas progressivas e tentativas idempotentes. Correção de múltipla escolha, verdadeiro/falso e lacunas testada; questão aberta com revisão sem nota. E2E_REAL_MODEL=qwen3.5:4b com npm run test:e2e -- --grep "exercício estruturado real": 1 passed; tentativa real recuperada após recarga. | Gabaritos gerados por IA podem conter erros. Não há avaliação semântica automática de questões abertas, execução de código ou métricas de domínio. |
 | 07/11/2026 | B007–B009 | CHECKS | Backend: pip check, Ruff check/format e mypy passaram. Frontend: format:check, lint, typecheck, testes e build passaram. Contratos/ADRs atualizados e schema público conciliado entre repositórios. | CI remoto, instalação limpa completa e migração do banco pessoal NÃO EXECUTADOS. Build mantém avisos de diretivas use client de dependência. Commit e push NÃO EXECUTADOS. |
+| 08/11/2026 | B010 | CONCLUÍDO | Plano de cinco módulos sem conteúdo futuro; edição/reordenação/adição/arquivamento e conflitos de revisão testados. Migração aditiva 0003 e atualização de histórico 0002 validadas em bancos temporários. | Divisão de unidades existentes é preservada ao editar metadados; outra divisão requer adicionar módulo. |
+| 08/11/2026 | B011 | CONCLUÍDO | Testes cobrem geração de uma unidade, cache sem nova geração, duas versões preservadas, cancelamento e recuperação. E2E do Marco 3 passou no Edge com recarga e capturas desktop/celular. | Limite inicial de dez versões por unidade; uma instância da API por banco. |
+| 08/11/2026 | B012 | CONCLUÍDO | Resumo persistido com dificuldades informadas e tentativas reais. Teste verifica máximo de três resumos e 4.500 caracteres. STUDY_TEST_OLLAMA_MODEL=qwen3.5:4b com pytest tests/test_real_trails.py: 1 passed em 137,90 s; segunda unidade real usa resumo da primeira. | Domínio/retenção não estimados; evidência do resumo é um snapshot de conclusão. |
+| 08/11/2026 | B010–B012 | CHECKS | Backend: 37 passed, 3 skipped; Ruff, mypy e pip check aprovados. Frontend: 11 testes passaram; format/lint/typecheck/build aprovados; E2E 5 passed, 2 skipped. Contratos, ADR e TASKS conciliados entre repositórios. Ver docs/development/milestone3-validation.md. | CI remoto, banco pessoal, instalação limpa e benchmark de 6 GB NÃO EXECUTADOS. E2E real de trilha no navegador NÃO EXECUTADO; integração real validada por API. Commit/push NÃO EXECUTADOS. |
+
 ## Próxima ação recomendada
 
-Após aprovação do Marco 3, iniciar **B010 — Planejamento editável de trilhas**, gerando somente o plano inicial e preservando contratos e histórico existentes.
+Após aprovação do Marco 4, iniciar **B013 — Caderno global e por tema**. A biblioteca e a licença de desenho de B015 continuam pendentes de decisão. Antes de usar o Marco 3 no banco pessoal, encerrar a API, fazer backup validado e aplicar Alembic até a revisão 0003 conforme o README.

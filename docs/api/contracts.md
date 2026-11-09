@@ -1,4 +1,4 @@
-# Contrato HTTP — Marco 1
+# Contrato HTTP — Marcos 1–3
 
 A API publica sua descrição em `/openapi.json`. Base: `/api/v1`. O frontend acessa a mesma base pelo proxy Vite. Nenhum arquivo de código é importado entre repositórios.
 
@@ -40,3 +40,28 @@ Cada evento SSE contém `event_id`, `job_id`, `job` e `message`. O payload é um
 - GET /exercises/{id}/attempts: lista as tentativas do perfil local.
 
 No fluxo blocks, os eventos SSE não contêm JSON bruto ou rascunhos de gabaritos: o documento aparece somente depois da validação e do commit. Em caso de JSON inválido após uma repetição, o job retorna INVALID_CONTENT, sem exercício parcial. No fluxo text legado, mantém-se o streaming textual.
+
+## Extensões do Marco 3
+
+| Método e rota | Entrada / resultado |
+| --- | --- |
+| POST /trails/plan | topic_id, objective, prior_knowledge e preferences opcionais, module_count (1–8, padrão 5), model_id, request_id; 202 TrailJob |
+| GET /topics/{id}/trails | Paginação limit/cursor; items de Trail |
+| GET /trails/{id} | trail, modules com units/versions/summaries, completed_units, total_units |
+| PATCH /trails/{id} | expected_version e title; plano atualizado |
+| POST /trails/{id}/modules | expected_version e plan; 201 plano atualizado |
+| PATCH /modules/{id} | expected_version, plan e/ou archived; plano atualizado |
+| PATCH /trails/{id}/modules/order | expected_version e module_ids com todos os módulos ativos |
+| GET /modules/{id}/lessons | Metadados das unidades; não gera conteúdo |
+| POST /modules/{id}/generate | model_id, request_id, unit_id opcional (primeira por padrão), granularity=auto, force_regenerate=false; 202 TrailJob |
+| GET /units/{id}/versions/{version_id} | version, message pública, summaries e stale |
+| POST /units/{id}/complete | version_id, difficulties opcional, model_id, request_id; 202 TrailJob |
+| GET /topics/{id}/trail-jobs | Até 30 jobs, incluindo planejamento antes da criação da trilha |
+| GET /trails/{id}/jobs | Até 30 jobs da trilha |
+| GET /trail-jobs/{id} | Snapshot TrailJob |
+| POST /trail-jobs/{id}/cancel | Cancela operação e eventual job interno |
+| GET /trail-jobs/{id}/events | SSE com event job.started/completed/failed/cancelled/interrupted e payload {job}; sem conteúdo bruto |
+
+ModulePlan contém title, objectives (1–6), criteria (1–4), estimated_minutes (5–180) e lesson_titles (1–6); textos curtos têm até 160 caracteres. O plano não contém aulas geradas. TrailJob contém kind=plan/unit/summary, status, target_id, trail_id, result_id, cached e erro seguro. result_id identifica respectivamente trilha, versão ou resumo. O fingerprint e child_job_id são metadados de coordenação, sem prompts ou gabaritos.
+
+Repetições da mesma operação devem manter request_id. Nova geração ou nova tentativa após job falho usa novo UUID. A revisão esperada evita sobrescrever edição concorrente; STALE_PLAN exige recarregar. O cache não atualiza versões antigas quando o plano muda: o cliente deve pedir force_regenerate explicitamente. Versões e resumos têm IDs próprios e são preservados. O campo context é um snapshot JSON de resumos limitados, sem histórico bruto. Veja a [ADR 0004](../architecture/0004-incremental-trails.md) para orçamento, contagem de progresso e recuperação de interrupções.

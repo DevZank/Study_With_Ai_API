@@ -26,6 +26,13 @@ async def generate_blocks(
     schema = GeneratedDocument.model_json_schema()
     schema["properties"]["mode"] = {"type": "string", "const": message.mode}
     schema["properties"]["blocks"]["maxItems"] = 4
+    if message.response_format == "lesson":
+        schema["properties"]["blocks"]["items"] = {
+            "anyOf": [
+                {"$ref": "#/$defs/TextBlock"},
+                {"$ref": "#/$defs/GeneratedExercise"},
+            ]
+        }
     if message.mode in ("memorize", "practice"):
         name = "FlashcardBlock" if message.mode == "memorize" else "GeneratedExercise"
         schema["properties"]["blocks"]["items"] = {"$ref": "#/$defs/" + name}
@@ -44,6 +51,12 @@ async def generate_blocks(
             document = GeneratedDocument.model_validate_json(raw)
             if document.mode != message.mode:
                 raise ValueError("Modo gerado difere do modo solicitado.")
+            if message.response_format == "lesson" and not any(
+                isinstance(b, GeneratedExercise) for b in document.blocks
+            ):
+                raise ValueError(
+                    "A unidade exige explicação e pelo menos um quiz ou exercício."
+                )
         except (ValidationError, ValueError) as error:
             detail = (
                 str(error)

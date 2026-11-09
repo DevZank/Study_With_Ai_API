@@ -31,6 +31,7 @@ class ConversationRow(Record, Base):
     topic_id: Mapped[str] = mapped_column(ForeignKey("topics.id"), index=True)
     title: Mapped[str]
     active_mode: Mapped[str] = mapped_column(server_default="learn")
+    origin: Mapped[str] = mapped_column(server_default="free")
 
 
 class MessageRow(Record, Base):

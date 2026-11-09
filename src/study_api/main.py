@@ -10,14 +10,17 @@ from fastapi.responses import Response
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from study_api.application.chat import ChatService
+from study_api.application.trail_service import TrailService
 from study_api.core.errors import configure_errors, response
 from study_api.domain.chat import Provider
 from study_api.infrastructure.db.database import database_path, engine_for
 from study_api.infrastructure.db.repository import SqliteRepository
+from study_api.infrastructure.db.trails import SqliteTrails
 from study_api.infrastructure.ollama import OllamaProvider
 from study_api.presentation.exercises import router as exercises_router
 from study_api.presentation.health import router as health_router
 from study_api.presentation.routes import router
+from study_api.presentation.trails import router as trails_router
 
 
 def create_app(path: Path | None = None, provider: Provider | None = None) -> FastAPI:
@@ -39,9 +42,13 @@ def create_app(path: Path | None = None, provider: Provider | None = None) -> Fa
             )
             app.state.service = service
             service.recover()
+            trails = TrailService(SqliteTrails(engine), service, service.provider)
+            app.state.trails = trails
+            trails.recover()
             try:
                 yield
             finally:
+                await trails.close()
                 await service.close()
                 engine.dispose()
 
@@ -90,6 +97,7 @@ def create_app(path: Path | None = None, provider: Provider | None = None) -> Fa
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(router, prefix="/api/v1")
     app.include_router(exercises_router, prefix="/api/v1")
+    app.include_router(trails_router, prefix="/api/v1")
     return app
 
 
