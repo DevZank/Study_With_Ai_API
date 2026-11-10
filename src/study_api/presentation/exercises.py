@@ -2,9 +2,10 @@ import json
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from study_api.application.exercises import ExerciseService
+from study_api.application.progress import ProgressService
 from study_api.presentation.routes import Service
 from study_api.presentation.schemas import AttemptInput, AttemptView, ExerciseView
 
@@ -52,7 +53,15 @@ async def attempts(exercise_id: UUID, s: Exercises) -> list[AttemptView]:
 
 
 @router.post("/exercises/{exercise_id}/attempts", status_code=201)
-async def attempt(exercise_id: UUID, body: AttemptInput, s: Exercises) -> AttemptView:
-    return AttemptView.model_validate(
-        s.attempt(str(exercise_id), body.response, str(body.request_id))
+async def attempt(
+    exercise_id: UUID, body: AttemptInput, s: Exercises, request: Request
+) -> AttemptView:
+    saved = s.attempt(str(exercise_id), body.response, str(body.request_id))
+    exercise = s.get(str(exercise_id))
+    conversation = s.repo.conversation(
+        s.repo.message(exercise.message_id).conversation_id
     )
+    progress: ProgressService | None = getattr(request.app.state, "progress", None)
+    if progress is not None:
+        progress.sync_topic(conversation.topic_id)
+    return AttemptView.model_validate(saved)

@@ -1,4 +1,4 @@
-# Contrato HTTP — Marcos 1–4
+# Contrato HTTP — Marcos 1–5
 
 A API publica sua descrição em `/openapi.json`. Base: `/api/v1`. O frontend acessa a mesma base pelo proxy Vite. Nenhum arquivo de código é importado entre repositórios.
 
@@ -93,3 +93,22 @@ Todos os IDs de entrada são UUID. A hierarquia de pastas é limitada a oito ní
 Documentos TipTap são JSON com nós/marcas permitidos: parágrafos, títulos, listas, citações, código, tabelas, fórmulas e formatação básica. Não são aceitos HTML arbitrário, imagens remotas ou links javascript. Limites: 250.000 caracteres de JSON, 3.000 nós, profundidade 16, 20 tags/temas/vínculos. Desenhos usam type=excalidraw, version=2, source=study-local, elements, appState e files; apenas imagens locais PNG/JPEG/WebP, até 500 KB cada, dez arquivos e 2,5 MB por cena. O limite HTTP de 3 MB é exclusivo de /pages e /notebooks; demais rotas mantêm 32 KB.
 
 O intervalo do recorte é [start,end), em pontos de código Unicode no text da origem canônica, e deve corresponder exatamente a selected_text. source registra tema/conversa/mensagem/data/modelo e os IDs de trilha/módulo/unidade/versão quando existentes. É preenchido pelo servidor, nunca aceito do cliente. Soluções privadas de exercícios não fazem parte dessa representação. O documento recebe uma cópia editável; modificar a cópia preserva recorte e resposta original. Veja a [ADR 0005](../architecture/0005-local-notebooks.md).
+
+## Extensões do Marco 5
+
+| Método e rota | Entrada / resultado |
+| --- | --- |
+| GET /topics/{topic_id}/flashcards | Filtros `include_archived=true\|false`, `at` (timestamp ISO-8601 UTC opcional); array de `FlashcardView` (`{card, review_state, estimated_retention, due}`) |
+| POST /topics/{topic_id}/flashcards | `front`, `back`, `concept_name` opcional, `operation_id` (UUID), `created_at` opcional; 201 `FlashcardView` com estado inicial FSRS (`new`) |
+| POST /messages/{message_id}/flashcards | `block_id`, `concept_name` opcional, `operation_id` (UUID); 201 `FlashcardView` importado de bloco validado concluído de IA |
+| PATCH /flashcards/{flashcard_id} | `front`, `back`, `concept_name`, `archived`, `expected_version` e `operation_id`; `FlashcardView` atualizado |
+| GET /flashcards/{flashcard_id}/history | Histórico cronológico de eventos FSRS (`ReviewEvent[]`) |
+| GET /reviews/due | Filtros `topic_id` opcional, `at` (timestamp ISO-8601 UTC opcional), `limit` (1–100); array de `FlashcardView` vencidos |
+| POST /reviews/{flashcard_id}/grade | `rating` (`1..4`), `request_id` (UUID), `reviewed_at` (ISO-8601 UTC opcional); `ReviewGradeView` (`{card, review_state, event}`) |
+| GET /progress/topics/{topic_id} | Indicadores separados (`completion`, `mastery`, `retention`), `explanations`, `recommendations` e `gamification` |
+| GET /progress/overview | Visão agregada com `calculated_at`, `due_count`, `active_topics_count` e `gamification` |
+| PATCH /progress/preferences | `{"hide_gamification":true\|false}`; atualiza a preferência de ocultar/exibir gamificação (`ProgressPreference`) |
+
+O agendador FSRS é determinístico: informar o mesmo `reviewed_at` em UTC com a mesma sequência de avaliações `rating` (`1` = Errei/Novamente, `2` = Difícil, `3` = Bom, `4` = Fácil) produz exatamente a mesma estabilidade, dificuldade, recuperabilidade e `due_at`. A avaliação é idempotente por `request_id`.
+
+Os três indicadores (`completion`, `mastery` e `retention`) nunca são combinados em nota única. Quando não há evidências suficientes (`evidence_count = 0` para conceitos ou `reviewed_cards = 0` para retenção), `estimated_score` / `estimated_retention` retornam `null`. O razão `xp_events` impede ganhos duplicados na repetição do mesmo exercício, na repetição de conclusão da mesma unidade ou na revisão de cartões não vencidos. Veja a [ADR 0006](../architecture/0006-memorization-and-progress.md).

@@ -436,6 +436,7 @@ Ao final de cada tarefa, apresentar:
 **Aceite:** selecionar texto de resposta, salvar com origem, editar, desenhar, recarregar e recuperar texto e desenho sem perda; vínculos funcionam entre cadernos.
 
 ### Fase 5 — Memorização, revisão e progresso [MVP-5]
+**Estado:** concluído e verificado em 10/11/2026; evidências no TASKS.md e na ADR 0006. Banco pessoal não migrado automaticamente.
 **Entregas:** flashcards, FSRS, fila de revisões, domínio por conceito, progresso de trilha, dashboard e XP leve.  
 **Aceite:** cartões gerados e revisados persistem; vencimentos calculados de forma determinística; indicadores separados não se confundem.
 
@@ -470,9 +471,9 @@ Ao final de cada tarefa, apresentar:
 - [x] B013 Criar cadernos, pastas e páginas de rich text.
 - [x] B014 Implementar seleção de resposta → recorte com proveniência.
 - [x] B015 Integrar canvas de desenho editável e autosave.
-- [ ] B016 Implementar flashcards, FSRS e agenda de revisões.
-- [ ] B017 Implementar métricas de progresso, domínio e retenção.
-- [ ] B018 Implementar XP, níveis e conquistas leves.
+- [x] B016 Implementar flashcards, FSRS e agenda de revisões.
+- [x] B017 Implementar métricas de progresso, domínio e retenção.
+- [x] B018 Implementar XP, níveis e conquistas leves.
 - [ ] B019 Implementar importação de materiais e pesquisa local.
 - [ ] B020 Implementar autorização explícita de pesquisa web.
 - [ ] B021 Implementar adaptadores OpenAI/Gemini e cofre de credenciais.

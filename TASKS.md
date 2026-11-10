@@ -2,7 +2,7 @@
 
 > **Fonte de requisitos:** `PLANEJAMENTO_PLATAFORMA_ESTUDOS_IA.md`  
 > **Regras para agentes:** `AGENTS.md`  
-> **Estado atual:** Marcos 0–4 verificados localmente no Windows; Marco 5 não iniciado.
+> **Estado atual:** Marcos 0–5 verificados localmente no Windows; Marco 6 não iniciado.
 > **Estratégia:** concluir uma fase por vez, sem antecipar funcionalidades não aprovadas.
 
 > Referência principal do progresso integrado: TASKS.md do repositório backend. A cópia do frontend é um retrato que deve ser conciliado explicitamente ao atualizar tarefas compartilhadas.
@@ -57,11 +57,11 @@
 
 ## Marco 5 — Memorização e progresso [MVP-5]
 
-- [ ] **B016 — Flashcards e revisão espaçada.** Gerar/editar cartões, FSRS, fila de revisão, agendamento determinístico e testes. **Aceite:** revisões sobrevivem a reinício; vencimentos são reproduzíveis. **Dep.:** B008, B003.
-- [ ] **B017 — Métricas pedagógicas.** Progresso por trilha, domínio por conceito e retenção estimada, com explicação das métricas. **Aceite:** indicadores separados e calculados a partir de eventos reais. **Dep.:** B009, B010, B016.
-- [ ] **B018 — Gamificação leve.** XP, níveis, conquistas simples, proteção contra ganho repetitivo artificial. **Aceite:** recompensas registradas por ações válidas; não premiar spam. **Dep.:** B017.
+- [x] **B016 — Flashcards e revisão espaçada.** Gerar/editar cartões, FSRS, fila de revisão, agendamento determinístico e testes. **Aceite:** revisões sobrevivem a reinício; vencimentos são reproduzíveis. **Dep.:** B008, B003.
+- [x] **B017 — Métricas pedagógicas.** Progresso por trilha, domínio por conceito e retenção estimada, com explicação das métricas. **Aceite:** indicadores separados e calculados a partir de eventos reais. **Dep.:** B009, B010, B016.
+- [x] **B018 — Gamificação leve.** XP, níveis, conquistas simples, proteção contra ganho repetitivo artificial. **Aceite:** recompensas registradas por ações válidas; não premiar spam. **Dep.:** B017.
 
-**Gate do marco 5:** ciclo de aprender, praticar, memorizar e acompanhar progresso funcional.
+**Gate do marco 5:** VERIFICADO em 10/11/2026 com bancos temporários: ciclo de aprender, praticar, memorizar e acompanhar progresso funcional. Criação/edição/importação de flashcards com origem preservada, agendador FSRS determinístico com vencimentos reproduzíveis, sobrevivência a reinício, três indicadores pedagógicos estritamente separados (conclusão, domínio por conceito e retenção FSRS) com explicações e recomendações adaptativas, e gamificação leve opcional com razão de XP anti-farming. Banco pessoal não migrado.
 
 ## Marco 6 — Materiais e fontes [MVP-6]
 
@@ -129,7 +129,11 @@
 | 08/11/2026 | B014 | CONCLUÍDO | Recorte validado contra resposta persistida, intervalo Unicode e origem imutável; cópia editável sem modificar fonte. Testes de trilha com módulo/unidade/versão nos cadernos global e por tema; E2E com origem e recuperação após falha de rede. | Seleções de blocos visuais têm representação textual própria no painel de recorte. |
 | 08/11/2026 | B015 | CONCLUÍDO | Excalidraw 0.18.1 e .excalidraw/PNG aprovados pelo usuário; MIT e avisos de fontes preservados. E2E desenha forma, recarrega, recupera cena e confere JSON editável/assinatura PNG. Fontes locais; auditoria npm sem vulnerabilidades após overrides. | Desfazer/refazer é da sessão; não há histórico de todas as cenas. Auditoria completa comercial/de acessibilidade permanece futura. |
 | 08/11/2026 | B013–B015 | CHECKS | Backend: pytest 48 passed, 3 skipped; Ruff check/format, mypy e pip check aprovados. Frontend: 11 testes unitários; format/lint/typecheck/build aprovados; E2E Edge 8 passed, 2 skipped. Capturas desktop/celular inspecionadas e largura 390 px sem rolagem horizontal. Contratos, ADR, planejamento e TASKS conciliados. Ver docs/development/milestone4-validation.md. | CI remoto, instalação limpa completa, banco pessoal e benchmark NÃO EXECUTADOS. Modelo real não foi chamado neste marco, pois o caderno não depende de IA. Commit/push NÃO EXECUTADOS. |
+| 10/11/2026 | B016 | CONCLUÍDO | Migração aditiva 0005; flashcards manuais e importados de blocos validados da IA com origem preservada e chave de unicidade; agendador FSRS-4.5 determinístico com vencimentos em ISO-8601 UTC, fila de revisão vencida, histórico imutável e sobrevivência a reinício testados em `tests/test_progress.py` e `e2e/milestone5.e2e.ts`. | Nenhum banco pessoal migrado automaticamente. |
+| 10/11/2026 | B017 | CONCLUÍDO | Indicadores separados de conclusão de trilhas/unidades, domínio estimado por conceito (tentativas objetivas + revisões FSRS, com grau de incerteza) e retenção estimada pela curva FSRS dos cartões revisados; textos explicativos e recomendações adaptativas onde o usuário decide. | Estimativas sujeitas a incerteza e à qualidade de gabaritos da IA; questões abertas permanecem sem nota automática. |
+| 10/11/2026 | B018 | CONCLUÍDO | Razão auditável `xp_events` com `source_key` única contra farming (repetição de exercícios, repetição de unidades e revisão de cartões não vencidos não geram XP), níveis determinísticos, conquistas simples e preferência persistida `hide_gamification` para ocultar/exibir gamificação. | Sem mecanismos de pressão ou uso compulsivo; teto diário de 30 revisões pontuadas. |
+| 10/11/2026 | B016–B018 | CHECKS | Backend: `pytest -q` 51 passed, 3 skipped; `ruff check`, `ruff format --check`, `mypy src tests` e `pip check` aprovados. Frontend: `npm test` 12 passed; `format:check`, `lint`, `typecheck` e `build` aprovados; Playwright E2E Edge 9 passed, 2 skipped. Capturas `marco5-desktop.png` e `marco5-mobile.png` inspecionadas sem rolagem horizontal em 390 px. Ver `docs/development/milestone5-validation.md` e ADR 0006. | CI remoto, instalação limpa completa, migração do banco pessoal, testes reais opcionais neste marco e benchmark de 6 GB NÃO EXECUTADOS. Commit/push NÃO EXECUTADOS. |
 
 ## Próxima ação recomendada
 
-Após aprovação do Marco 5, iniciar **B016 — Flashcards e revisão espaçada**. Antes de usar o Marco 4 no banco pessoal, encerrar a API, fazer backup validado e aplicar Alembic até a revisão 0004 conforme o README. A escolha do quadro foi resolvida neste marco; a auditoria completa de distribuição permanece em B025.
+Após aprovação do Marco 6, iniciar **B019 — Importação, busca local e RAG** (e alinhar a decisão **D005** sobre provedor de pesquisa web antes de **B020**). Antes de usar o Marco 5 no banco pessoal, encerrar a API, fazer backup validado e aplicar Alembic até a revisão 0005 conforme o README.

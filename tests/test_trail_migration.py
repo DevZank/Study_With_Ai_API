@@ -68,5 +68,14 @@ def test_upgrade_from_milestone2_keeps_history(
         "lesson_versions",
         "learning_summaries",
         "trail_jobs",
+        "concepts",
+        "concept_mastery",
+        "flashcards",
+        "review_states",
+        "review_events",
+        "xp_events",
+        "achievements",
+        "earned_achievements",
+        "progress_preferences",
     } <= set(inspect(engine).get_table_names())
     engine.dispose()
